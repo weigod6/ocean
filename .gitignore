@@ -1,0 +1,14 @@
+.venv
+.idea/*
+output_csv
+csv_output
+tiles
+sst_data
+sst_png
+sst_png1
+sst_tiles
+recent
+recent_output_csv
+recent_sst_png
+2021_output_csv
+2024_output_csv
