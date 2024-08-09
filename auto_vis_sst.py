@@ -14,32 +14,9 @@ from scipy.ndimage import zoom
 def vis_sst(filename):
     csv_path = path_name+'/'+filename
     png_path = 'recent_sst_png/' + filename.split('.')[0] + '.png'
-    if(os.path.exists(png_path)):
-        return
+
     # 1. 读取CSV文件
     df = pd.read_csv(csv_path, header=None)  # 假设没有标题行
-    # data = pd.read_csv(csv_path, header=None).values
-    #
-    # # 处理缺失值（N表示的部分）
-    # data[data == 'N'] = np.nan
-    # data = data.astype(float)
-
-    # # 创建掩码，标记非缺失值的位置
-    # mask = ~np.isnan(data)
-    #
-    # # 使用掩码和最近邻插值方法填充缺失值
-    # data_filled = np.where(mask, data, 0)
-    # zoom_factor = 4
-    #
-    # # 放大掩码和填充后的数据
-    # data_filled_zoom = zoom(data_filled, zoom_factor, order=1)
-    # mask_zoom = zoom(mask.astype(float), zoom_factor, order=0)
-    #
-    # # 使用掩码将无效值再次标记为NaN
-    # interpolated_data = np.where(mask_zoom, data_filled_zoom, np.nan)
-    #
-    # # 降低数据精度并保留两位小数
-    # interpolated_data = np.around(interpolated_data.astype(np.float32), decimals=2)
     df.replace('N', np.nan, inplace=True)
     sea_temperature = df.values.astype(float)
 
@@ -73,7 +50,7 @@ def vis_sst(filename):
         (-15, "#6B1527FF")
 
     ]
-    n_bins = 256
+    n_bins = 4096
 
     cmap_custom = LinearSegmentedColormap.from_list("custom_temperature_cmap", [color[1] for color in colors], N=n_bins)
     cmap_custom.set_bad(color='gray')
@@ -85,7 +62,8 @@ def vis_sst(filename):
     plt.axis('off')
 
     # 保存图像
-    plt.savefig(png_path, bbox_inches='tight', pad_inches=0, transparent=False, dpi=2000)
+    # plt.savefig(png_path, bbox_inches='tight', pad_inches=0, transparent=False, dpi=2000)
+    plt.show()
     print("vis"+png_path)
     plt.close()
     # 显示图形
@@ -94,6 +72,8 @@ def vis_sst(filename):
 path_name = 'recent_output_csv'  # 输入要获取文件的根目录
 
 for filename in os.listdir(path_name):
+    if (os.path.exists('recent_sst_png/' + filename.split('.')[0] + '.png')):
+        continue
     vis_sst(filename)
 
 print("更新图片完成！")

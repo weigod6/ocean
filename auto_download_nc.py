@@ -12,7 +12,7 @@ urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 # URL of the catalog page
 date = datetime.now().strftime('%G')
 catalog_url = f"https://psl.noaa.gov/thredds/catalog/Datasets/noaa.oisst.v2.highres/catalog.html?dataset=Datasets/noaa.oisst.v2.highres/sst.day.mean.{date}.nc"
-download_dir = "recent"
+download_dir = "nc_data"
 
 # 设置日志记录
 logging.basicConfig(level=logging.INFO)

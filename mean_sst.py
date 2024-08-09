@@ -34,5 +34,4 @@ for e in package_pth:
 
     day_mean_data.to_csv(output_file,header=False, index=False)
 
-#
-# print(day_mean_data)
+

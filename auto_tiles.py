@@ -6,11 +6,11 @@ import time
 
 def create_tiles(image_path, tile_size, output_dir, max_zoom):
     # Ensure output directory exists
-    if not os.path.exists(output_dir):
-        print(output_dir)
-        os.makedirs(output_dir)
-    else:
-        return
+    # if not os.path.exists(output_dir):
+    #     print(output_dir)
+    #     os.makedirs(output_dir)
+    # else:
+    #     return
     # Read the image using OpenCV with alpha channel
     full_img = cv2.imread(image_path, cv2.IMREAD_UNCHANGED)
     height, width, channels = full_img.shape
@@ -63,9 +63,17 @@ def create_tiles(image_path, tile_size, output_dir, max_zoom):
                 # print(tile_path)
                 cv2.imwrite(tile_path, tile)
 
+#
 path_name = 'recent_sst_png'  # 输入要获取文件的根目录
 
 for filename in os.listdir(path_name):
-    create_tiles(path_name + '/' + filename, 512, 'F:oe_tiles/sst_tiles/' + filename.split('.')[0], 5)
+    create_tiles(path_name + '/' + filename, 512, 'F:oe_tiles/sst_3d_tiles/' + filename.split('.')[0], 5)
+
+
+
+path_name1 = 'F:/heatwave'
+
+for filename in os.listdir(path_name1):
+    create_tiles(path_name1 + '/' + filename, 512, 'F:oe_tiles/heatwave_tiles/' + filename.split('.')[0], 5)
 
 print("更新瓦片完成!")

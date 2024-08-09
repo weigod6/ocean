@@ -54,7 +54,7 @@ def nc_to_csv(nc_file_path, output_dir):
     # 关闭 nc 文件
     dataset.close()
 
-package_pth = 'recent'
+package_pth = 'nc_data'
 output_dir = 'recent_output_csv'
 for filename in os.listdir(package_pth):
     # if (int(filename.split('.')[3]) >= 2000 and int(filename.split('.')[3])<2021):

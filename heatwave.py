@@ -1,68 +1,66 @@
 import os
+from datetime import datetime
 
 import pandas as pd
 import numpy as np
-from datetime import datetime, timedelta
-
 from natsort import natsorted
 
+input_pth1 = 'F:/y1981-2014_mean_data'
+input_pth2 = 'recent_output_csv'
+input_pth3 = 'F:/y1981-2014_90%-mean_data'
 
-def read_irregular_csv(file_path):
-    data = []
-    with open(file_path, 'r') as file:
-        for line in file:
-            # 将每一行拆分为数据点并添加到数据列表中
-            data.append([round(float(item), 2) if item.strip() else None for item in line.strip().split(',')])
-    return pd.DataFrame(data)
+input_files1 = os.listdir(input_pth1)
+input_files2 = os.listdir(input_pth2)
+input_files3 = os.listdir(input_pth3)
 
-pth = 'F:/oe_data2'
-package_pth = os.listdir(pth)
-package_pth = natsorted(package_pth)
-mean_sst_pth = 'F:/oe_mean_data'
-output_pth = 'F:/oe_90%-mean_data'
+na_input_files1 = natsorted(input_files1)
+na_input_files2 = natsorted(input_files2)
+na_input_files3 = natsorted(input_files3)
 
+initial_dfs = []
+subtract_dfs = []
+divsion_dfs = []
 
-file = 'F:/oe_data2/84/0.csv'
-df2 = read_irregular_csv('F:/oe_mean_data/84_mean_sst.csv')
-df = read_irregular_csv(file)
-mean_data =pd.DataFrame()
-for e in package_pth:
-    files = os.listdir(os.path.join(pth, e))
-    files = natsorted(files)
-    output_file = os.path.join(output_pth, f'{e}_90%-mean_sst.csv')
-    if os.path.exists(output_file):
+initial_arrays = []
+subtract_arrays = []
+divsion_arrays = []
+begin_date = '2023-12-28'
+start_file = begin_date+'.csv'
+start_index = na_input_files2.index(start_file)
+
+for file in na_input_files2[start_index:]:
+    date_object = datetime.strptime(file.split('.')[0], '%Y-%m-%d').date()
+    # 获取该日期是该年的第几天
+    day_of_year = date_object.timetuple().tm_yday-1
+    date_str = date_object.strftime('%Y-%m-%d')
+    input1 = pd.read_csv(os.path.join(input_pth1,f'day{day_of_year}.csv'),header=None).apply(pd.to_numeric,errors='coerce')
+    input2 = pd.read_csv(os.path.join(input_pth2,date_str+'.csv'),header=None).apply(pd.to_numeric,errors='coerce')
+    input3 = pd.read_csv(os.path.join(input_pth3,f'day{day_of_year}.csv'),header=None).apply(pd.to_numeric,errors='coerce')
+    initial_arrays.append(input1.values)
+    subtract_arrays.append(input2.values)
+    divsion_arrays.append(input3.values)
+    if initial_arrays.__len__() < 5:
         continue
-    day_mean_data = pd.DataFrame()
-    # mean_data = pd.read_csv(os.path.join(mean_sst_pth, f'{e}_mean_sst.csv'), header=None)# 我想在外面读mean_data 因为在里面是重复读了，然后我就把它拿出来，报错
-    # print(mean_data.shape)#索引超了QAQ
+    else:
+        # 对每个初始数组减去对应的 subtract 数组
+        subtracted_arrays = [subtract - initial for initial, subtract in zip(initial_arrays, subtract_arrays)]
+        divsioned_arrays = [subtracted / divsion for divsion, subtracted in zip(divsion_arrays, subtracted_arrays)]
+        # print(divsioned_arrays)
+        # 使用 numpy 的 all 函数查找所有位置在所有数组中都大于 0 的位置
+        greater_than_zero_mask = np.all(np.array(divsioned_arrays) > 0, axis=0)
+        filtered_arrays = [np.where(greater_than_zero_mask, divsion, 0) for divsion in divsioned_arrays]
+        # 将结果转换为 DataFrame，便于查看和保存
+        filtered_dfs = [pd.DataFrame(filtered_array, columns=input1.columns).clip(upper=5) for filtered_array in
+                        filtered_arrays]
+        sst = np.floor(filtered_dfs[4])
+        sst.to_csv(f'heatwave/{date_str}.csv', header=False, index=False)
+        sea_temperature = sst
 
-    for file in files:
-        mean_data = pd.read_csv(os.path.join(mean_sst_pth, f'{e}_mean_sst.csv'), header=None)#但是你把它放里面来，就没问题
-        # print(mean_data[389])
-        file_pth = os.path.join(pth, e, file)
-        data = read_irregular_csv(file_pth)
-        quantile_90_data = data.iloc[0:32].quantile(0.90)
-        index = int(file.split('.')[0])
-        print(index)
-        mean_sst = mean_data[index]
-        mean_data = quantile_90_data - mean_sst
-        day_mean_data = pd.concat([day_mean_data, mean_data], axis=1)
-
-    day_mean_data.to_csv(output_file, header=False, index=False)
+        print(sea_temperature)
+        initial_arrays = initial_arrays[1:]  # 丢弃第一页
+        subtract_arrays = subtract_arrays[1:]  # 丢弃第一页
+        divsion_arrays = divsion_arrays[1:]  # 丢弃第一页
 
 
-ddf =df.iloc[0:32].quantile(0.90)-df2[0]
 
-print(ddf)#一个地点，根据1981年-2014年的数据，处理出来的每天的第90分位数温度 - 一个地点每天的平均温度（根据1981年-2014年）
 
-# 0      0.407
-# 1      0.429
-# 2      0.501
-# 3      0.638
-# 4      0.704
-#        ...
-# 361    0.638
-# 362    0.757
-# 363    0.578
-# 364    0.588
-# 365    0.611

@@ -8,7 +8,7 @@ app = Flask(__name__)
 # 定义瓦片金字塔文件夹路径
 TILESETS = {
     'world_tiles',
-    'sst_tiles',
+    'sst_3d_tiles',
     'ice_tiles'
 }
 
@@ -35,7 +35,7 @@ def get_tile(tileset, level=None, x=None, y=None, date=None):
             tile_path = os.path.join(tileset_path, str(level), f"{x}_{y}.png")
         else:
             # create_tiles('20000.png', 512, 'tiles', 5)
-            opencv.create_tiles('recent_sst_png/'+date+'.png',512,'sst_tiles/'+date,5)
+            opencv.create_tiles('recent_sst_png/'+date+'.png',512,'sst_3d_tiles/'+date,5)
             tile_path = os.path.join(tileset_path, str(level), f"{x}_{y}.png")
 
     else:

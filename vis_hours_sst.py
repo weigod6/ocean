@@ -9,9 +9,9 @@ from mpl_toolkits.basemap import Basemap
 
 def vis_sst(filename):
     csv_path = path_name+'/'+filename
-    png_path = path_name+'/' + filename.split('.')[0] + '.png'
-    if(os.path.exists(png_path)):
-        return
+    png_path = 'G:/sst_hours_png'+'/' + filename.split('.')[0] + '.png'
+    # if(os.path.exists(png_path)):
+    #     return
     # 1. 读取CSV文件
     df = pd.read_csv(csv_path, header=None)  # 假设没有标题行
     # df = pd.read_csv(filename, header=None)  # 假设没有标题行
@@ -21,18 +21,19 @@ def vis_sst(filename):
 
     # 2. 创建Basemap对象，设置中心点经度和纬度偏移
     plt.figure(figsize=(12, 6))
-    m = Basemap(projection='merc', lon_0=-50, lat_0=50, llcrnrlat=-85.0511, urcrnrlat=85.0511, llcrnrlon=0,
+    m = Basemap(projection='merc', lon_0=0, lat_0=0, llcrnrlat=-85.0511, urcrnrlat=85.0511, llcrnrlon=0,
                 urcrnrlon=360)
 
     # 3. 绘制海温数据
     # 构造经度和纬度数组
-    lons = np.linspace(-180 + 180, 180 + 180, sea_temperature.shape[1])  # 经度范围
-    lats = np.linspace(-90, 90, sea_temperature.shape[0])  # 纬度范围
+    lons = np.linspace(1.15, 135.05, sea_temperature.shape[1])  # 经度范围
+    lats = np.linspace(10, 60.25, sea_temperature.shape[0])  # 纬度范围
     lon, lat = np.meshgrid(lons, lats)  # 创建经纬度网格
 
     # 将经度和纬度转换为地图投影坐标
     x, y = m(lon, lat)
-
+    vmin = -5
+    vmax = 40
     # 绘制海温数据，使用颜色映射来表示海温值
     colors = [
         (40, "#281D69FF"),
@@ -56,18 +57,18 @@ def vis_sst(filename):
     cmap_custom.set_bad(color='gray')
 
     # 绘制海温数据，使用自定义的颜色映射
-    pcm = m.pcolormesh(x, y, sea_temperature, cmap=cmap_custom, shading='auto')
+    pcm = m.pcolormesh(x, y, sea_temperature, cmap=cmap_custom,vmin=vmin, vmax=vmax, shading='auto')
 
     # 添加标题
     plt.axis('off')
 
     # 保存图像
-    # plt.savefig(png_path, bbox_inches='tight', pad_inches=0, transparent=False, dpi=2000)
-    plt.show()
+    plt.savefig(png_path, bbox_inches='tight', pad_inches=0, transparent=True, dpi=2000)
+    # plt.show()
     plt.close()
     # 显示图形
 
 
-path_name = 'F:oe_3d_data'  # 输入要获取文件的根目录
+path_name = 'G:/hours_sst'  # 输入要获取文件的根目录
 for filename in os.listdir(path_name):
         vis_sst(filename)

@@ -11,7 +11,7 @@ urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 # URL of the catalog page
 catalog_url = "https://psl.noaa.gov/thredds/catalog/Datasets/noaa.oisst.v2.highres/catalog.html?dataset=Datasets/noaa.oisst.v2.highres/sst.day.mean.{}.nc"
-download_dir = "recent"
+download_dir = "nc_data"
 max_retries = 5
 
 # 设置日志记录

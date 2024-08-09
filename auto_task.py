@@ -25,8 +25,11 @@ def run_script(script, max_retries=5, delay=5):
 
 def task():
     scripts = [
-        "auto_download_nc.py",
+        # "auto_download_nc.py",
         "auto_nctocsv.py",
+        "auto_lat_lon_data.py",
+        "auto_heatwave.py",
+        "auto_vis_heatwave",
         "auto_vis_sst.py",
         "auto_tiles.py"
     ]
@@ -38,7 +41,7 @@ def task():
             break  # 如果脚本失败，停止运行后续脚本
 
 # Schedule the task to run daily at midnight
-schedule.every().day.at("18:21").do(task)
+schedule.every().day.at("16:25").do(task)
 
 # Start the scheduler
 print("Scheduler started. Waiting for the next scheduled download...")

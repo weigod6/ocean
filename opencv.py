@@ -56,12 +56,17 @@ def create_tiles(image_path, tile_size, output_dir, max_zoom):
 
                 # Ensure the tile size matches tile_size (due to rounding issues)
                 tile = cv2.resize(tile, (tile_size, tile_size), interpolation=cv2.INTER_LANCZOS4)
-
+                print(tile.shape)
                 # Save the tile
                 tile_path = os.path.join(zoom_dir, f'{x}_{y}.png')
                 print(tile_path)
-                cv2.imwrite(tile_path, tile)
-
-# path_name = 'recent_sst_png'  # 输入要获取文件的根目录
-# for filename in os.listdir(path_name):
-#     create_tiles(path_name+'/'+filename,512,'F:oe_tiles/sst_tiles/'+filename.split('.')[0],5)
+                alpha_channel = tile[:, :, 3]
+                if np.all(alpha_channel == 0):
+                    print("图像是全透明的，不保存。")
+                else:
+                    print("图像包含透明度通道，但不是全透明，可以保存。")
+                    # 保存图像
+                    cv2.imwrite(tile_path, tile)
+path_name = 'hours_png'  # 输入要获取文件的根目录
+for filename in os.listdir(path_name):
+    create_tiles(path_name+'/'+filename,512,'oe_tiles/sst_hours_tiles/'+filename.split('.')[0],5)

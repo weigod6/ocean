@@ -1,11 +1,9 @@
+import os
+from datetime import datetime, timedelta
 
 import numpy as np
-import netCDF4 as nc
-import scipy
-
-
-##目的：利用数据反演每3个小时的动态。
-##目的：利用数据反演每3个小时的动态。
+import pandas as pd
+from natsort import natsorted
 
 def PreEquation(T_mean, t):
 
@@ -18,9 +16,14 @@ def PreEquation(T_mean, t):
     return T
 
 
-
-data_20 = nc.Dataset("recent/sst.day.mean.2024.nc")  # (200,720,1440)----(t,y,x)  # ##输入
-data_sst = np.array(data_20['sst'])[:, 400:601, 720:1241]  # 输入限制经纬度
+pth = 'G:/recent_output_csv'
+files = os.listdir(pth)
+files = natsorted(files)
+index = files.index('2024-01-01.csv')
+df = []
+for e in files[index:]:
+    df.append(pd.read_csv(f"G:/recent_output_csv/{e}",header=None).apply(pd.to_numeric,errors='coerce'))
+data_sst = np.array(df)[:,400:601,0:541]
 original_shape = data_sst.shape
 data_sst = data_sst.reshape((*original_shape, 1))
 time_point = 8
@@ -30,5 +33,11 @@ data_pred = PreEquation(data_sst, t[0])
 for j in range(1, 4):
     data_pred = np.concatenate((data_pred, PreEquation(data_sst, t[j])), axis=3)
 
-scipy.io.savemat('Pred_hours_SST.mat', {'sst': data_pred})
+print(data_pred.shape)
+date = datetime(2024,1,1).date()
+for j in range(214):
+    for i in range(4):
+        df = pd.DataFrame(data_pred[j][:, :, i])
+        df = df.round(2)
+        df.to_csv(f'G:/hours_sst/{date+timedelta(days = j)}_{i * 6}.csv', header=False, index=False)
 
